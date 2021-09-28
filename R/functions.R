@@ -20,3 +20,14 @@ summ <- function(dataset) {
 move2curve <- function(point, curve){
   # TODO Shannon should fill out this function
 }
+
+
+#' Measure distance along curve
+#' 
+#' @param point A single point, previously moved to the curve
+#' @param curve A 
+#' 
+#' 
+dist_along <- function(point, curve){
+  # TODO: shannon will fill this one out also.
+}
