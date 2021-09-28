@@ -9,3 +9,14 @@
 summ <- function(dataset) {
   summarize(dataset, mean_x = mean(x))
 }
+
+
+
+#' Function to move point onto curve
+#' 
+#' @param point A single point 
+#' @param curve A curve or line to move the point onto
+#' 
+move2curve <- function(point, curve){
+  # TODO Shannon should fill out this function
+}
