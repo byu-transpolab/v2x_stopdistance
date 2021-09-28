@@ -19,6 +19,7 @@ summ <- function(dataset) {
 #' 
 move2curve <- function(point, curve){
   # TODO Shannon should fill out this function
+  # Possibly change labeling system to make it easier to change variables
 }
 
 
