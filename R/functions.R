@@ -48,6 +48,7 @@ add_points_to_df <-function(new_df, old_df, cp){
   CY1=S_Curve_Centerlines$W_LAT[cp+1]
   CX2=S_Curve_Centerlines$W_LONG[cp]
   CY2=S_Curve_Centerlines$W_LAT[cp]
+  CM=(CY2-CY1)/(CX2-CX1)
   new_points<-mapply(FUN = move2curve, 
                      cx1=CX1, 
                      cy1=CY1, 
@@ -60,10 +61,30 @@ add_points_to_df <-function(new_df, old_df, cp){
   new_df$center_lng<-new_points$V1
   new_df$center_lat<-new_points$V2
   new_df$center_d<-new_points$V3
-  new_df<-filter(new_df,
-          center_d<30,
-          LONGITUDE<=CX1,
-          LATITUDE>=CY1)
+  lat_dif = abs(CY2-CY1)
+  if (CY2 > CY1){
+    if (CX2 > CX1){
+      new_df<-filter(new_df,
+                     center_d<30,
+                     # LATITUDE<=(-1/CM)*(LONGITUDE-CX1)+CY1 &
+                       LONGITUDE <= CX1 - CM*(LATITUDE-CY1),
+                     # LATITUDE>= (-1/CM)*(LONGITUDE - CX2)+CY2 &
+                       LONGITUDE >= CX2 - CM*(LATITUDE - CY2))
+    }else{
+      new_df<-filter(new_df,
+              center_d<30,
+              LATITUDE>=(-1/CM)*(LONGITUDE-CX1)+CY1 &
+                LONGITUDE <= CX1 - CM*(LATITUDE-CY1),
+              LATITUDE<= (-1/CM)*(LONGITUDE - CX2)+CY2 &
+                LONGITUDE >= CX2 - CM*(LATITUDE - CY2))
+   }} else {
+          new_df<-filter(new_df,
+                   center_d<30,
+                   LATITUDE<=(-1/CM)*(LONGITUDE-CX1)+CY1 &
+                     LONGITUDE >= CX1 - CM*(LATITUDE-CY1),
+                   LATITUDE>= (-1/CM)*(LONGITUDE - CX2)+CY2 &
+                     LONGITUDE <= CX2 - CM*(LATITUDE - CY2))
+  }
   new_df<-group_by(new_df, TEMP_ID)
   new_df<-mutate(new_df,
                  ELEVATION_CHANGE = lead(ELEVATION_FT)-ELEVATION_FT)
