@@ -93,12 +93,46 @@ add_points_to_df <-function(new_df, old_df, cp, e_w){
   new_df<-ungroup(new_df, TEMP_ID)
   if (E_W == -1){
       new_df<-filter(new_df, ELEVATION_CHANGE<0)
+      if (cp<5){
+        curve_lat = S_Curve_Centerlines$W_LAT[5]
+        curve_lng = S_Curve_Centerlines$W_LONG[5]
+        new_df<-mutate(new_df,
+                        dist_to_curve = ((center_lat-curve_lat)^2 + 
+                                           (center_lng-curve_lng)^2)^(1/2)*364000)
+      }
+      if (cp>21){
+        curve_lat = S_Curve_Centerlines$W_LAT[21]
+        curve_lng = S_Curve_Centerlines$W_LONG[21]
+        new_df<-mutate(new_df,
+                       dist_to_curve = ((center_lat-curve_lat)^2 + 
+                                          (center_lng-curve_lng)^2)^(1/2)*364000)
+      }
   }
   if (E_W == 1){
       new_df<-filter(new_df, ELEVATION_CHANGE>0)
+      if (cp < 5){
+        curve_lat = S_Curve_Centerlines$E_LAT[5]
+        curve_lng = S_Curve_Centerlines$E_LONG[5]
+        new_df<-mutate(new_df,
+                        dist_to_curve = ((center_lat-curve_lat)^2 + 
+                                           (center_lng-curve_lng)^2)^(1/2)*364000)
+      }
+      if (cp > 21){
+        curve_lat = S_Curve_Centerlines$E_LAT[21]
+        curve_lng = S_Curve_Centerlines$E_LONG[21]
+        new_df<-mutate(new_df,
+                       dist_to_curve = ((center_lat-curve_lat)^2 + 
+                                          (center_lng-curve_lng)^2)^(1/2)*364000)
+      }
   }
+  new_df<-group_by(new_df, TEMP_ID)%>%
+    mutate(SPEED_DIFF = lead(SPEED_MPH)-SPEED_MPH)%>%
+    mutate(TIME_DIFF = as.numeric(as_datetime(lead(RECEIVED_TMSTP_UTC)))-as.numeric(as_datetime(RECEIVED_TMSTP_UTC)))%>%
+    mutate(ACCELERATION = SPEED_DIFF/TIME_DIFF)
+  
   return(new_df)
  }
+
 
 #' Transforms latitude/longitude data into sf
 transform_sf <- function(df){
@@ -135,6 +169,16 @@ my_add_circles <-function(map, DF, COLOR, RAD=0.5, GROUP, ...){
 #' @param curve A 
 #' 
 #' 
-dist_along <- function(point, curve){
-  # TODO: shannon will fill this one out also.
+dist_along <- function(curve){
+ 
 }
+cp=0
+sum=0
+if (cp<5 & cp>=1){
+  for (i in 1:cp-1){
+    sum=sum+S_Curve_Centerlines$W_DIST_FT[i]
+  }
+}
+if (cp<15 & cp>=5){}
+if (cp<21 & cp>=15){}
+if (cp>=21){}
